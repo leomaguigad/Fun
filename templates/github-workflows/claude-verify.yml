@@ -1,0 +1,28 @@
+# "On every PR" pattern: copy to .github/workflows/claude-verify.yml in a repo.
+# Requires the ANTHROPIC_API_KEY repo secret (or run `/install-github-app` in Claude Code).
+# Also copy the skills/ folder into that repo's .claude/skills/ so the action can use them.
+name: Claude verify
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  verify:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review PR #${{ github.event.pull_request.number }} against its base branch.
+            Use the verify-log-hygiene and verify-security skills on the diff.
+            Post the findings as a single PR comment. Do not push commits.

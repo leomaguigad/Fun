@@ -18,6 +18,36 @@ cd Fun
 
 Restart Claude Code, then run `/verify-loop` or just ask it to "verify this".
 
+## Already have Claude Code set up on the laptop? Merge instead
+
+`install.sh` just copies skills. If your laptop already has its own
+`~/.claude` (settings, hooks, CLAUDE.md, skills), use `integrate.py` to fold
+this kit into it without losing anything:
+
+```bash
+python3 integrate.py --dry-run     # preview every change, touches nothing
+python3 integrate.py               # merge into ~/.claude
+python3 integrate.py --uninstall   # put your previous setup back
+```
+
+What it does:
+- **Skills**: adds the six skills. If you already have a skill with the same
+  name, your version is saved first and comes back on `--uninstall`.
+- **settings.json**: adds the Stop-hook reminder next to your existing hooks;
+  all your other settings stay as they are. Skip it with `--no-hook`.
+- **CLAUDE.md**: appends a short marked "Verification" section telling Claude
+  to use these skills; your own text is untouched.
+- **Re-runnable**: after `git pull`, run it again to refresh the kit. It never
+  adds duplicates, and your originals stay saved from the first run
+  (`~/.claude/backups/verify-kit/`).
+- **Clean undo**: `--uninstall` restores replaced skills, deletes added ones,
+  and removes only the kit's hook entry and CLAUDE.md section, so any edits
+  you made to those files in the meantime are kept.
+
+Use `--project ~/code/app` to do the same for one repo's `.claude/` so you
+can commit it and share it. The hook path there uses `$CLAUDE_PROJECT_DIR`,
+so it works on any machine.
+
 ## The skills and which pattern each shows
 
 | Skill | Pattern | What it does |
